@@ -1,0 +1,2 @@
+spleeter
+numpy<1.26.0
