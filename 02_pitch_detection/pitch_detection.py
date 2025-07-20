@@ -9,6 +9,11 @@ output_dir = os.path.join(BASE_DIR, 'output')
 os.makedirs(input_dir, exist_ok=True)
 os.makedirs(output_dir, exist_ok=True)
 
+output_csv = os.path.join(output_dir, 'pitch.csv')
+# Удаляем старый pitch.csv, если он есть
+if os.path.exists(output_csv):
+    os.remove(output_csv)
+
 input_audio = input(f'Введите имя аудиофайла из папки input (например, vocals.wav): ').strip()
 input_path = os.path.join(input_dir, input_audio)
 
@@ -19,6 +24,7 @@ if not os.path.isfile(input_path):
 # Параметры анализа
 frame_length = 2048
 hop_length = 256
+MIN_NOTE_DURATION = 0.15  # минимальная длительность ноты в секундах
 
 # Загружаем аудио
 print('Загружаю аудио...')
@@ -41,6 +47,7 @@ for idx, (hz, voiced) in enumerate(zip(f0, voiced_flag)):
         notes.append(None)
     else:
         note_name = librosa.hz_to_note(hz)
+        note_name = note_name.replace('♯', '#').replace('♭', 'b')
         notes.append(note_name)
 
 # Группируем одинаковые ноты подряд
@@ -58,11 +65,10 @@ for i, note in enumerate(notes):
 if current_note is not None:
     result.append((start_time, times[-1], current_note))
 
-# Убираем паузы (None)
-result = [r for r in result if r[2] is not None]
+# Убираем паузы (None) и слишком короткие ноты
+result = [r for r in result if r[2] is not None and (r[1] - r[0]) >= MIN_NOTE_DURATION]
 
 # Сохраняем в CSV
-output_csv = os.path.join(output_dir, 'pitch.csv')
 with open(output_csv, 'w', newline='') as f:
     writer = csv.writer(f)
     writer.writerow(['start_time', 'end_time', 'note'])
