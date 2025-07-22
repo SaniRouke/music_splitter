@@ -1,4 +1,4 @@
-.PHONY: split_vocals_env pitch_detection_env visualization_env music21_notation_env compare_vocals_env all_envs run_split_vocals run_pitch_detection run_visualization run_music21_notation run_compare_vocals
+.PHONY: split_vocals_env pitch_detection_env visualization_env music21_notation_env basic_pitch_env compare_vocals_env all_envs run_split_vocals run_pitch_detection run_visualization run_music21_notation run_basic_pitch run_compare_vocals
 
 split_vocals_env:
 	cd 01_split_vocals && python3.10 -m venv venv && . venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt
@@ -15,7 +15,10 @@ music21_notation_env:
 compare_vocals_env:
 	cd 05_compare_vocals && python3.10 -m venv venv && . venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt
 
-all_envs: split_vocals_env pitch_detection_env visualization_env music21_notation_env compare_vocals_env
+basic_pitch_env:
+	cd 04_basic_pitch && python3.10 -m venv venv && . venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt
+
+all_envs: split_vocals_env pitch_detection_env visualization_env music21_notation_env basic_pitch_env compare_vocals_env
 
 run_split_vocals:
 	. 01_split_vocals/venv/bin/activate && python 01_split_vocals/split_vocals.py
@@ -29,6 +32,9 @@ run_visualization:
 run_music21_notation:
 	. 03_music21_notation/venv/bin/activate && python 03_music21_notation/music21_notation.py
 
+run_basic_pitch:
+	. 04_basic_pitch/venv/bin/activate && python 04_basic_pitch/basic_pitch_processor.py
+
 run_compare_vocals:
 	. 05_compare_vocals/venv/bin/activate && python 05_compare_vocals/compare_vocals.py 
 
@@ -38,3 +44,7 @@ test2:
 test3:
 	make music21_notation_env
 	make run_music21_notation
+
+test4:
+	make basic_pitch_env
+	make run_basic_pitch

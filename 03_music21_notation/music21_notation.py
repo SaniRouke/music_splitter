@@ -3,9 +3,9 @@ import csv
 from music21 import note, stream
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-input_dir = os.path.join(BASE_DIR, 'input')
+project_root = os.path.dirname(BASE_DIR)
+input_dir = os.path.join(project_root, 'output')
 output_dir = os.path.join(BASE_DIR, 'output')
-os.makedirs(input_dir, exist_ok=True)
 os.makedirs(output_dir, exist_ok=True)
 
 input_csv = os.path.join(input_dir, 'pitch.csv')
@@ -20,7 +20,14 @@ with open(input_csv, 'r') as f:
         start = float(row['start_time'])
         end = float(row['end_time'])
         dur = end - start
-        n = row['note']
+        # Try different possible column names for note
+        if 'note_name' in row:
+            n = row['note_name']
+        elif 'note' in row:
+            n = row['note']
+        else:
+            print(f"Error: No note column found. Available columns: {list(row.keys())}")
+            exit(1)
         notes.append((n, dur))
 
 # Создаём поток нот
